@@ -1,0 +1,14 @@
+{
+  "domain": "jotul",
+  "name": "Jotul Pellet Control",
+  "documentation": "",
+  "dependencies": [],
+  "config_flow": true,
+  "codeowners": [
+    "@Getget"
+  ],
+  "version": "1.0.0",
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "requirements": []
+}

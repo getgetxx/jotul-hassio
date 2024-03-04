@@ -1,0 +1,47 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Device is already configured",
+            "cannot_connect": "Failed to connect"
+        },
+        "error": {
+            "cannot_connect": "Failed to connect",
+            "unknown": "Unexpected error"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "host": "Host",
+                    "alias": "Alias"
+                },
+                "description": "Enter the IP address of your Jotul controller.",
+                "title": "Configure Jotul"
+            }
+        }
+    },
+    "entity": {
+        "sensor": {
+            "ambient_temperature": {
+                "name": "Ambient temperature"
+            },
+            "pellet_temperature": {
+                "name": "Pellet temperature"
+            },
+            "smoke_temperature": {
+                "name": "Smoke temperature"
+            },
+            "detailed_status": {
+                "name": "Detailed status"
+            },
+            "target_pressure": {
+                "name": "Target pressure"
+            },
+            "measured_pressure": {
+                "name": "Measured pressure"
+            },
+            "smoke_fan_speed": {
+                "name": "Smoke fan speed"
+            }
+        }
+    }
+}

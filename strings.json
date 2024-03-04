@@ -1,0 +1,35 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure Jotul Pellet Control",
+        "description": "Entrez l'adresse IP du module de controle Jotul.",
+        "data": {
+          "host": "[%key:common::config_flow::data::host%]"
+        }
+      }
+    },
+    "entity": {
+      "sensor": {
+        "ambient_temperature": {
+          "name": "Température ambiante"
+        },
+        "pellet_temperature": {
+          "name": "Température du pellet"
+        },
+        "smoke_temperature": {
+          "name": "Température des fumées"
+        },
+        "target_pressure": {
+          "name": "Pression attendu"
+        },
+        "measured_pressure": {
+          "name": "Pression mesurée"
+        },
+        "smoke_fan_speed": {
+          "name": "Vitesse de ventilation des fumées"
+        }
+      }
+    }
+  }
+}

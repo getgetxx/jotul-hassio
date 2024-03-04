@@ -1,0 +1,76 @@
+set_parms:
+  name: Set parameters
+  description: The parameters for controlling the stove.
+  fields:
+    SETP:
+      name: Set point
+      description: Set temperature target (integer).
+    PWR:
+      name: Power
+      description: The maximum power allowed while trying to achieve the set point (integer from 1 to 5).
+    RFAN:
+      name: Room fan
+      description: The level of the integrated room fan (if exists on your stove) (integer from 1 to 5 or string off/auto/high).
+    STATUS:
+      name: Stove status
+      description: Start or stop the stove (string on/off).
+      selector:
+        select:
+          options:
+            - "on"
+            - "off"
+set_maxfan:
+  name: Set room fan
+  description: Définir la puissance de la ventilation intégré (1 à 5 ou 7 pour Automatique)
+  fields:
+    value:
+      name: valeur
+      description: valeur de puissance de ventilation 1 à 7 (6=max et 7=auto)
+
+set_targettemp:
+  name: Set target temp
+  description: Définir la températur souhaité dans la pièce
+  fields:
+    value:
+      name: valeur
+      description: valeur de température souhaité (nombre entier)
+
+set_status:
+    name: Set status
+    description: Démarre ou arrête le poele
+    fields:
+      value:
+        name: valeur
+        description: valeur de statut de fonctionnement du poele 'on' ou 'off'
+        # selector:
+        #   select:
+        #     options:
+        #       - "on"
+        #       - "off"
+set_power:
+  name: Set power
+  description: Définir la puissance max du poele de 1 à 5
+  fields:
+    value:
+      name: valeur
+      description: valeur de puissance puissance max de chauffe (1 à 5)
+get_all:
+  name: Get all data
+  description: Récupérer toutes les données de fonctionnement du poele
+set_silentmode:
+  name: Set silent mode
+  description: Défini l'activation ou non du mode silencieu
+  fields:
+    value:
+      name: valeur
+      description: valeur du mode silence (0 pour off, 1 pour on)
+get_allcounters:
+  name: get all counters
+  description: get all the counters
+set_chronostatus:
+  name: set chrono status
+  description: Active ou désactive la programmation horaire
+  fields:
+    value:
+      name: valeur
+      description: Vaut 1 pour activer, 0 pour désactiver
