@@ -132,9 +132,12 @@ class JotulApi:
 
     """docstring for jotulpelletcontrol"""
 
-    def __init__(self, devInfos:DeviceInfo, host:str) -> None:  # noqa: D107
+    def __init__(self, mac, sn, host:str, hass:HomeAssistant) -> None:  # noqa: D107
 
-        self.device_info = devInfos
+        self.hass = hass
+        # self.device_info = DeviceInfo(**devInfos)
+        self.mac = mac
+        self.sn = sn
         self.host = host
         self.queryStr = str.replace(QUERY_STRING_BASE, "(HOST)", host)
         self._available = True
@@ -168,7 +171,15 @@ class JotulApi:
     @property
     def device_info(self) -> DeviceInfo:
         """Return a device description for device registry."""
-        return self.device_info
+        return DeviceInfo(
+                    connections={("ip", self.host), ("mac", self.mac)},
+                    # manufacturer="Jotul",
+                    manufacturer="Jotul",
+                    model= "PF930",
+                    name="JOTUL PF930",
+                    # model="PF930",
+                    serial_number=self.sn
+        )
 
     # make request GET ALLS
     async def async_get_alls(self):
@@ -570,19 +581,22 @@ async def jotul_api_setup(
     session = async_get_clientsession(hass)
     try:
         async with asyncio.timeout(TIMEOUT):
-            params = (("cmd", "GET ALLS"),)
-            resp = session.get(str.replace(QUERY_STRING_BASE, "(HOST)", host), params)
+            # params = (("cmd", "GET ALLS"),)
+            resp = await session.get(str.replace(QUERY_STRING_BASE, "(HOST)", host)+"?cmd=GET+ALLS")
             if(resp.status == 200):
-                device = DeviceInfo(
-                    connections={("ip", host), ("mac", resp.json["DATA"]["MAC"])},
-                    # manufacturer="Jotul",
-                    default_manufacturer="Jotul",
-                    default_model= "PF930",
-                    default_name="JOTUL PF930",
-                    # model="PF930",
-                    deviceMac = resp.json["DATA"]["MAC"],
-                    serial_number=resp.json["DATA"]["SN"]
-                )
+                jsonR = await resp.json(content_type=resp.content_type)
+                mac = jsonR["DATA"]["MAC"]
+                sn = jsonR["DATA"]["SN"]
+                # device = DeviceInfo(
+                #     connections={("ip", host), ("mac", jsonR["DATA"]["MAC"])},
+                #     # manufacturer="Jotul",
+                #     default_manufacturer="Jotul",
+                #     default_model= "PF930",
+                #     default_name="JOTUL PF930",
+                #     # model="PF930",
+                #     deviceMac = jsonR["DATA"]["MAC"],
+                #     serial_number=jsonR["DATA"]["SN"]
+                # )
             else :
                 _LOGGER.debug("response not ok", resp)
                 raise ConfigEntryNotReady("First get request do not reply 200")
@@ -592,10 +606,11 @@ async def jotul_api_setup(
     except aiohttp.ClientConnectionError as err:
         _LOGGER.debug("ClientConnectionError to %s", host)
         raise ConfigEntryNotReady from err
-    except Exception:  # pylint: disable=broad-except
+    except Exception as err:  # pylint: disable=broad-except
         _LOGGER.error("Unexpected error creating device %s", host)
-        return None
+        raise ConfigEntryNotReady from err
+        # return None
 
-    api = JotulApi(device, host)
+    api = JotulApi(mac, sn, host, hass)
 
     return api

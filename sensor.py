@@ -181,12 +181,12 @@ class JotulCoordinator(DataUpdateCoordinator):
     """My custom coordinator."""
 
     def __init__(self, hass: HomeAssistant | None, my_api) -> None :
-        """Initialize my coordinator."""
+        """Initialize Jotul sensors coordinator."""
         super().__init__(
             hass,
             _LOGGER,
             # Name of the data. For logging purposes.
-            name="My sensor",
+            name="Jotul sensors",
             # Polling interval. Will only be polled if there are subscribers.
             update_interval=timedelta(seconds=30),
         )
@@ -225,7 +225,7 @@ class JotulSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
         self.entity_description = description
         self._attr_device_info = api.device_info
-        self._attr_unique_id = f"{api.device.mac}-{description.key}"
+        self._attr_unique_id = f"{api.mac}-{description.key}"
         self._attr_name = ATTR_DICT_INF_SENSOR[self.entity_description.key].label
         self._api = api
 
