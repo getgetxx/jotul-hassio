@@ -19,7 +19,7 @@ INTERVAL = timedelta(seconds=30)
 INTERVAL_CNTR = timedelta(seconds=300)  # Interval for check counters
 TIMEOUT = 30
 QUERY_STRING_BASE = "http://(HOST)/cgi-bin/sendmsg.lua"
-PLATFORMS: list[Platform] = [Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.SWITCH]
 
 ATTR_AMBIENT_TEMPERATURE = "ambient_temperature"
 ATTR_PELLET_TEMPERATURE = "pellet_temperature"

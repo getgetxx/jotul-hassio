@@ -157,7 +157,7 @@ class JotulApi:
         return await self.async_get_request()
 
     # send a get request for get datas
-    async def async_get_request(self):
+    async def async_get_request(self) -> None:
         """Request the stove."""
         # params for GET
         # params = (("cmd", self.op),)
@@ -212,30 +212,27 @@ class JotulApi:
         self.hass.states.async_set(
             "jotulpelletcontrol.stove", "online", self.response_json
         )
-        await self.change_states()
-        return self.response_json
+        self.change_states()
+        # return self.response_json
 
     async def change_states(self):
         """Change states following result of request."""
         if self.op == "GET ALLS":
-            updates = [
-                self.hass.states.async_set("jotulpelletcontrol.STATUS", ATTR_DETAILED_STATUS_OPTIONS_MAPPING.get(
-                    self.response_json["STATUS"], self.response_json["STATUS"])), # Statut détaillé
-                self.hass.states.async_set("jotulpelletcontrol.F2L", int(self.response_json["F2L"])), # Puissance ventilation max
-                self.hass.states.async_set("jotulpelletcontrol.PWR", self.response_json["PWR"]), # Puissance
-                self.hass.states.async_set("jotulpelletcontrol.SETP", self.response_json["SETP"]), # Température demandé
-                self.hass.states.async_set("jotulpelletcontrol.APLWDAY", self.response_json["APLWDAY"]), # ????
-                self.hass.states.async_set("jotulpelletcontrol.F1RPM", self.response_json["F1RPM"]), # RPM extracteur de fumée
-                self.hass.states.async_set("jotulpelletcontrol.FDR", self.response_json["FDR"]), # ????
-                self.hass.states.async_set("jotulpelletcontrol.DPT", self.response_json["DPT"]), # Deltra pressure target
-                self.hass.states.async_set("jotulpelletcontrol.DP", self.response_json["DP"]), # Delta pressure
-                self.hass.states.async_set("jotulpelletcontrol.T1", self.response_json["T1"]), # Température ambiante
-                self.hass.states.async_set("jotulpelletcontrol.T2", self.response_json["T2"]), # Température pellet
-                self.hass.states.async_set("jotulpelletcontrol.T3", self.response_json["T3"]), # Température des fumées
-                self.hass.states.async_set("jotulpelletcontrol.CHRSTATUS", self.response_json["CHRSTATUS"]), # Satus d'activation de la programmation horaire
-                self.hass.states.async_set("jotulpelletcontrol.PQT", self.response_json["PQT"]), # ????
-            ]
-            await asyncio.gather(*updates)
+            self.hass.states.async_set("jotulpelletcontrol.STATUS", ATTR_DETAILED_STATUS_OPTIONS_MAPPING.get(
+                self.response_json["STATUS"], self.response_json["STATUS"])) # Statut détaillé
+            self.hass.states.async_set("jotulpelletcontrol.F2L", int(self.response_json["F2L"])) # Puissance ventilation max
+            self.hass.states.async_set("jotulpelletcontrol.PWR", self.response_json["PWR"]) # Puissance
+            self.hass.states.async_set("jotulpelletcontrol.SETP", self.response_json["SETP"]) # Température demandé
+            self.hass.states.async_set("jotulpelletcontrol.APLWDAY", self.response_json["APLWDAY"]) # ????
+            self.hass.states.async_set("jotulpelletcontrol.F1RPM", self.response_json["F1RPM"]) # RPM extracteur de fumée
+            self.hass.states.async_set("jotulpelletcontrol.FDR", self.response_json["FDR"]) # ????
+            self.hass.states.async_set("jotulpelletcontrol.DPT", self.response_json["DPT"]) # Deltra pressure target
+            self.hass.states.async_set("jotulpelletcontrol.DP", self.response_json["DP"]) # Delta pressure
+            self.hass.states.async_set("jotulpelletcontrol.T1", self.response_json["T1"]) # Température ambiante
+            self.hass.states.async_set("jotulpelletcontrol.T2", self.response_json["T2"]) # Température pellet
+            self.hass.states.async_set("jotulpelletcontrol.T3", self.response_json["T3"]) # Température des fumées
+            self.hass.states.async_set("jotulpelletcontrol.CHRSTATUS", self.response_json["CHRSTATUS"]) # Satus d'activation de la programmation horaire
+            self.hass.states.async_set("jotulpelletcontrol.PQT", self.response_json["PQT"]) # ????
 
 
     async def async_set_parameters(self, datas):

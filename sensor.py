@@ -199,15 +199,7 @@ class JotulCoordinator(DataUpdateCoordinator):
             # Note: asyncio.TimeoutError and aiohttp.ClientError are already
             # handled by the data update coordinator.
             async with asyncio.timeout(10):
-                # Grab active context variables to limit data required to be fetched from API
-                # Note: using context is not required if there is no need or ability to limit
-                # data retrieved from API.
-                # listening_idx = set(self.async_contexts())
                 return await self.my_api.async_get_alls()
-        # except ApiAuthError as err:
-        #     # Raising ConfigEntryAuthFailed will cancel future updates
-        #     # and start a config flow with SOURCE_REAUTH (async_step_reauth)
-        #     raise ConfigEntryAuthFailed from err
         except BaseException as err:
             raise UpdateFailed(f"Error communicating with API: {err}") from err
 
@@ -229,7 +221,7 @@ class JotulSensor(CoordinatorEntity, SensorEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        self._attr_native_value = self.coordinator.data[ATTR_DICT_INF_SENSOR[self.entity_description.key].result_key_name]
+        self._attr_native_value = self._api.response_json[ATTR_DICT_INF_SENSOR[self.entity_description.key].result_key_name]
         self.async_write_ha_state()
 
     @property
