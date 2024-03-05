@@ -1,11 +1,16 @@
-from homeassistant import config_entries
-from .const import DOMAIN
+"""Config flow."""
+
 import voluptuous as vol
-from homeassistant.const import CONF_HOST, CONF_ALIAS
+
+from homeassistant import config_entries
+from homeassistant.const import CONF_ALIAS, CONF_HOST
+
+from .const import DOMAIN
 
 
 class JotulConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Jotul config flow."""
+
     # The schema version of the entries that it creates
     # Home Assistant will call your migrate method if the version changes
     VERSION = 1
@@ -21,11 +26,9 @@ class JotulConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             }
         )
 
-    async def async_step_user(self, info):
+    async def async_step_user(self, user_input):
         """Describe the user step."""
-        if info is not None:
-            pass  # TODO: process info
-
-        return self.async_show_form(
-            step_id="user", data_schema=self.schema
-            )
+        if user_input is None:
+            return self.async_show_form(
+                step_id="user", data_schema=self.schema
+                )

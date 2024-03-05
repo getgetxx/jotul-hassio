@@ -1,45 +1,33 @@
-# from config.custom_components.jotul import JotulApi
-# from homeassistant.components.switch import SwitchEntity
+"""Switch."""
 
-
-# class JotulOnOffSwitch(SwitchEntity):
-#     """On off Jotul state"""
-
-#     _attr_icon= "mdi:fireplace"
-#     _attr_should_poll= True
-#     _attr_name = "Etat"
-#     _attr_has_entity_name = True
-
-
-#     def __init__(self, api: JotulApi) -> None:
-#         """Initialize Jotul on off switch."""
-#         self._api = api
-#         self._attr_device_info = api.device_info
-#         self._attr_unique_id = f"{api.device.mac}-streamer"
+import asyncio
+from datetime import timedelta
 import logging
 
-import async_timeout
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import ToggleEntity
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from datetime import timedelta
+
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-async def async_setup_entry(hass, entry, async_add_entities):
+async def async_setup_entry(hass: HomeAssistant | None, entry, async_add_entities):
     """Set up the switch platform."""
-    coordinator = JotulSwitchUpdateCoordinator(hass)
+    jotul_api = hass.data[DOMAIN].get(entry.entry_id)
+    coordinator = JotulSwitchUpdateCoordinator(hass, jotul_api)
     await coordinator.async_config_entry_first_refresh()
 
-    async_add_entities([CustomSwitch(coordinator, "state", "State Switch"), CustomSwitch(coordinator, "chrono", "Chrono Switch")])
+    await async_add_entities([StatusSwitch(coordinator, jotul_api), ChronoStatusSwitch(coordinator, jotul_api)])
 
 class JotulSwitchUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching switch data."""
 
-    def __init__(self, hass):
+    def __init__(self, hass: HomeAssistant|None, jotul_api) -> None:
         """Initialize the coordinator."""
         self.hass = hass
         self.data = None
+        self.my_api = jotul_api
 
         super().__init__(
             hass,
@@ -50,31 +38,26 @@ class JotulSwitchUpdateCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         """Fetch data from API."""
-
         try:
-            # Note: asyncio.TimeoutError and aiohttp.ClientError are already
-            # handled by the data update coordinator.
-            async with async_timeout.timeout(10):
-                # Grab active context variables to limit data required to be fetched from API
-                # Note: using context is not required if there is no need or ability to limit
-                # data retrieved from API.
-                # listening_idx = set(self.async_contexts())
-                return await self.my_api.async_get_alls()
-        # except ApiAuthError as err:
-        #     # Raising ConfigEntryAuthFailed will cancel future updates
-        #     # and start a config flow with SOURCE_REAUTH (async_step_reauth)
-        #     raise ConfigEntryAuthFailed from err
+            async with asyncio.timeout(10):
+                await self.my_api.async_get_alls()
         except BaseException as err:
             raise UpdateFailed(f"Error communicating with API: {err}") from err
 
-class CustomSwitch(ToggleEntity):
-    """Representation of a Switch."""
+class StatusSwitch(ToggleEntity):
+    """Representation of status Switch."""
 
-    def __init__(self, coordinator, name, friendly_name)->None:
+    def __init__(self, coordinator, api)->None:
         """Initialize the switch."""
         self.coordinator = coordinator
-        self._name = name
-        self._friendly_name = friendly_name
+        self._name = "Etat"
+        self._friendly_name = "Etat"
+        self._attr_device_info = api.device_info
+        self._attr_unique_id = f"{api.mac}-status"
+        self._attr_has_entity_name = True
+        self._attr_icon= "mdi:fireplace"
+        self._attr_should_poll= True
+        self._api = api
 
     @property
     def name(self):
@@ -84,19 +67,51 @@ class CustomSwitch(ToggleEntity):
     @property
     def is_on(self):
         """Return true if switch is on."""
-        return bool(self.coordinator.data and self.coordinator.data.get(self._name))
+        return bool(self._api.response_json.get(self._name))
+        # return bool(self.coordinator.data and self.coordinator.data.get(self._name))
+
+    async def async_turn_on(self, **kwargs):
+        """Turn the stove on."""
+        await self._api.async_set_status(True)
+
+    async def async_turn_off(self, **kwargs):
+        """Turn the stove off."""
+        await self.api.async_set_status(False)
+
+
+class ChronoStatusSwitch(ToggleEntity):
+    """Representation of chrono status switch."""
+
+    def __init__(self, coordinator, api)->None:
+        """Initialize the switch."""
+        self.coordinator = coordinator
+        self._name = "Etat"
+        self._friendly_name = "Etat"
+        self._attr_device_info = api.device_info
+        self._attr_unique_id = f"{api.mac}-status"
+        self._attr_has_entity_name = True
+        self._attr_icon= "mdi:fireplace"
+        self._attr_should_poll= True
+        self._api = api
+
+    @property
+    def name(self):
+        """Return the name of the switch."""
+        return self._name
+
+    @property
+    def is_on(self):
+        """Return true if switch is on."""
+        return True if self._api.response_json.get("CHRSTATUS") == 1 else False
 
     async def async_turn_on(self, **kwargs):
         """Turn the switch on."""
-        # Turn on logic here
-        pass
+        await self._api.async_set_chronostatus(1)
 
     async def async_turn_off(self, **kwargs):
         """Turn the switch off."""
-        # Turn off logic here
-        pass
+        await self._api.async_set_chronostatus(0)
 
-    @property
-    def friendly_name(self):
-        """Return the friendly name of the switch."""
-        return self._friendly_name
+    async def async_toggle(self, **kwargs: logging.Any) -> None:
+        """Toogle the switch."""
+        await self._api.async_set_chronostatus(0 if self.is_on else 1)

@@ -1,13 +1,10 @@
 """Sensors for Jotul pellet control."""
 
+import asyncio
 from datetime import timedelta
 import logging
-import async_timeout
-
-from attr import dataclass
 
 from config.custom_components.jotul import JotulApi
-from homeassistant.components.api import APIErrorLog
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -201,7 +198,7 @@ class JotulCoordinator(DataUpdateCoordinator):
         try:
             # Note: asyncio.TimeoutError and aiohttp.ClientError are already
             # handled by the data update coordinator.
-            async with async_timeout.timeout(10):
+            async with asyncio.timeout(10):
                 # Grab active context variables to limit data required to be fetched from API
                 # Note: using context is not required if there is no need or ability to limit
                 # data retrieved from API.
