@@ -5,7 +5,8 @@
         "title": "Configure Jotul Pellet Control",
         "description": "Entrez l'adresse IP du module de controle Jotul.",
         "data": {
-          "host": "[%key:common::config_flow::data::host%]"
+          "host": "[%key:common::config_flow::data::host%]",
+          "alias": "[%key:common::config_flow::data::alias%]"
         }
       }
     },

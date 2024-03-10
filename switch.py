@@ -18,7 +18,7 @@ async def async_setup_entry(hass: HomeAssistant | None, entry, async_add_entitie
     coordinator = JotulSwitchUpdateCoordinator(hass, jotul_api)
     await coordinator.async_config_entry_first_refresh()
 
-    await async_add_entities([StatusSwitch(coordinator, jotul_api), ChronoStatusSwitch(coordinator, jotul_api)])
+    async_add_entities([StatusSwitch(coordinator, jotul_api), ChronoStatusSwitch(coordinator, jotul_api)])
 
 class JotulSwitchUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching switch data."""
@@ -55,9 +55,16 @@ class StatusSwitch(ToggleEntity):
         self._attr_device_info = api.device_info
         self._attr_unique_id = f"{api.mac}-status"
         self._attr_has_entity_name = True
-        self._attr_icon= "mdi:fireplace"
         self._attr_should_poll= True
         self._api = api
+
+    @property
+    def icon(self) -> str | None:
+        """Icon of the entity based on value."""
+        if self.is_on:
+            return "mdi:fireplace"
+        else:
+            return "mdi:fireplace-off"
 
     @property
     def name(self):
@@ -68,7 +75,6 @@ class StatusSwitch(ToggleEntity):
     def is_on(self):
         """Return true if switch is on."""
         return bool(self._api.response_json.get(self._name))
-        # return bool(self.coordinator.data and self.coordinator.data.get(self._name))
 
     async def async_turn_on(self, **kwargs):
         """Turn the stove on."""
@@ -78,6 +84,10 @@ class StatusSwitch(ToggleEntity):
         """Turn the stove off."""
         await self.api.async_set_status(False)
 
+    async def async_toggle(self, **kwargs) -> None:
+        """Toogle the switch."""
+        await self._api.async_set_status(False if self.is_on else True)
+
 
 class ChronoStatusSwitch(ToggleEntity):
     """Representation of chrono status switch."""
@@ -85,12 +95,11 @@ class ChronoStatusSwitch(ToggleEntity):
     def __init__(self, coordinator, api)->None:
         """Initialize the switch."""
         self.coordinator = coordinator
-        self._name = "Etat"
-        self._friendly_name = "Etat"
+        self._name = "Chrono"
+        self._friendly_name = "Mode programmation"
         self._attr_device_info = api.device_info
-        self._attr_unique_id = f"{api.mac}-status"
+        self._attr_unique_id = f"{api.mac}-chronostatus"
         self._attr_has_entity_name = True
-        self._attr_icon= "mdi:fireplace"
         self._attr_should_poll= True
         self._api = api
 
@@ -99,6 +108,13 @@ class ChronoStatusSwitch(ToggleEntity):
         """Return the name of the switch."""
         return self._name
 
+    @property
+    def icon(self) -> str | None:
+        """Icon of the entity based on value."""
+        if self.is_on:
+            return "mdi:clock-check"
+        else:
+            return "mdi:clock-remove"
     @property
     def is_on(self):
         """Return true if switch is on."""
@@ -112,6 +128,6 @@ class ChronoStatusSwitch(ToggleEntity):
         """Turn the switch off."""
         await self._api.async_set_chronostatus(0)
 
-    async def async_toggle(self, **kwargs: logging.Any) -> None:
+    async def async_toggle(self, **kwargs) -> None:
         """Toogle the switch."""
         await self._api.async_set_chronostatus(0 if self.is_on else 1)

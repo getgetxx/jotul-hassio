@@ -38,17 +38,6 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-# @dataclass(frozen=True)
-# class JotulRequiredKeysMixin:
-#     """Mixin for required keys."""
-
-#     infos: str
-#     get_op: str
-#     result_key:str
-
-# class JotulEntityDescription(SensorEntityDescription, JotulRequiredKeysMixin):
-#     """Describes Jotul sensor entity."""
-
 SENSOR_TYPES: list[SensorEntityDescription] = (
     SensorEntityDescription(
         key=ATTR_AMBIENT_TEMPERATURE,
@@ -56,9 +45,6 @@ SENSOR_TYPES: list[SensorEntityDescription] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        # infos="Température ambiante",
-        # get_op="GET TMPS",
-        # result_key="T1",
     ),
     SensorEntityDescription(
         key=ATTR_PELLET_TEMPERATURE,
@@ -66,9 +52,6 @@ SENSOR_TYPES: list[SensorEntityDescription] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        # infos="Température du pellet",
-        # get_op="GET TMPS",
-        # result_key="T2",
     ),
     SensorEntityDescription(
         key=ATTR_SMOKE_TEMPERATURE,
@@ -76,9 +59,6 @@ SENSOR_TYPES: list[SensorEntityDescription] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        # infos="Température des fumées",
-        # get_op="GET TMPS",
-        # result_key="T3",
     ),
     SensorEntityDescription(
         key=ATTR_DETAILED_STATUS,
@@ -86,44 +66,18 @@ SENSOR_TYPES: list[SensorEntityDescription] = (
         device_class=SensorDeviceClass.ENUM,
         state_class=SensorStateClass.MEASUREMENT,
         options=ATTR_DETAILED_STATUS_OPTIONS
-        # infos="Température des fumées",
-        # get_op="GET TMPS",
-        # result_key="T3",
     ),
-    # JotulEntityDescription(
-    #     key=ATTR_CHRONO_STATUS,
-    #     translation_key="chrono_status",
-    #     device_class=SensorDeviceClass.ENUM,
-    #     state_class=SensorStateClass.MEASUREMENT,
-    #     options=[ATTR_STATE_ON, ATTR_STATE_OFF],
-    # ),
-    # JotulEntityDescription(
-    #     key=ATTR_TARGET_TEMPERATURE,
-    #     translation_key="target_temperature",
-    #     device_class=SensorDeviceClass.TEMPERATURE,
-    #     state_class=SensorStateClass.MEASUREMENT,
-    #     native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-    #     infos="Température demandée",
-    #     get_op="GET TMPS",
-    #     result_key="",
-    # ),
     SensorEntityDescription(
         key=ATTR_TARGET_PRESSURE,
         translation_key="target_pressure",
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
-        # infos="Pression attendu",
-        # get_op="GET DPRS",
-        # result_key="DPT",
     ),
     SensorEntityDescription(
         key=ATTR_MEASURED_PRESSURE,
         translation_key="measured_pressure",
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
-        # infos="Pression mesurée",
-        # get_op="GET DPRS",
-        # result_key="DP",
     ),
     SensorEntityDescription(
         key=ATTR_SMOKE_FAN_SPEED,
@@ -131,9 +85,6 @@ SENSOR_TYPES: list[SensorEntityDescription] = (
         translation_key="smoke_fan_speed",
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=ATTR_UNIT_RPM,
-        # infos="Vitesse de ventilation des fumées",
-        # get_op="GET FAND",
-        # result_key="F1RPM",
     ),
 )
 

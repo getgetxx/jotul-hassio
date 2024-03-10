@@ -17,9 +17,9 @@ class JotulEntitySensorExtension:
 DOMAIN = "jotul"
 INTERVAL = timedelta(seconds=30)
 INTERVAL_CNTR = timedelta(seconds=300)  # Interval for check counters
-TIMEOUT = 30
+TIMEOUT = 10
 QUERY_STRING_BASE = "http://(HOST)/cgi-bin/sendmsg.lua"
-PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.SWITCH]
+PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.SWITCH, Platform.NUMBER, Platform.SELECT]
 
 ATTR_AMBIENT_TEMPERATURE = "ambient_temperature"
 ATTR_PELLET_TEMPERATURE = "pellet_temperature"
@@ -30,6 +30,7 @@ ATTR_TARGET_PRESSURE = "target_pressure"
 ATTR_MEASURED_PRESSURE = "mesured_pressure"
 ATTR_SMOKE_FAN_SPEED = "smoke_fan_speed"
 ATTR_DETAILED_STATUS = "detailes_status"
+ATTR_UNIT_RPM = "RPM"
 ATTR_DETAILED_STATUS_OPTIONS = [
     "OFF",
     "OFF TIMER",
@@ -78,9 +79,29 @@ ATTR_DETAILED_STATUS_OPTIONS_MAPPING : dict[int, str] = {
             253: "NOPELLET ALARM",
         }
 
-ATTR_STATE_ON = "on"
-ATTR_STATE_OFF = "off"
-ATTR_UNIT_RPM = "RPM"
+ATTR_FAN_LEVEL_MAPPING : dict[int, str] = {
+    0: "Off",
+    1: "1",
+    2: "2",
+    3: "3",
+    4: "4",
+    5: "5",
+    6: "Max",
+    7: "Auto"
+}
+ATTR_FAN_LEVEL_MAPING_REVERSE : dict[str, int] = {
+    "Off" : 0,
+    "1": 1,
+    "2": 2,
+    "3": 3,
+    "4": 4,
+    "5": 5,
+    "Max": 6,
+    "Auto": 7
+}
+
+# ATTR_STATE_ON = "on"
+# ATTR_STATE_OFF = "off"
 
 ATTR_DICT_INF_SENSOR: dict[str, JotulEntitySensorExtension] = {
     ATTR_AMBIENT_TEMPERATURE : JotulEntitySensorExtension("Température ambiante", "GET TMPS", "T1"),
