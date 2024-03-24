@@ -244,7 +244,7 @@ class JotulApi:
     async def async_set_sept(self, value):
         """Set target temperature."""
 
-        if value is None or value.isinstance(int):
+        if value is None or not isinstance(value, int):
             return
 
         self.op = f"SET SETP {str(value)}"
@@ -270,7 +270,7 @@ class JotulApi:
             return
 
         # must be str or int
-        if not value.isinstance(str) and not value.isinstance(int):
+        if not isinstance(value, str) and not isinstance(value, int):
             return
 
         self.op = f"SET RFAN {str(value)}"
@@ -281,7 +281,7 @@ class JotulApi:
 
     async def async_set_chronostatus(self, value):
         """Enable or disable chrono program."""
-        if value is None or not value.isinstance(int) or value not in (0, 1):
+        if value is None or not isinstance(value, int) or value not in (0, 1):
             _LOGGER.warning(
                 "Trying to set chrono status with wrong value (must be int 0 or 1) : %s",
                 value,
@@ -333,7 +333,7 @@ class JotulApi:
             return
 
         # must be int
-        if not value.isinstance(int):
+        if not isinstance(value, int):
             _LOGGER.warning(
                 "Set silent mode with unauthorized value (not a int) %s", value
             )
