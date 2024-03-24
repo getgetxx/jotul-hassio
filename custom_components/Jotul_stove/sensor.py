@@ -4,7 +4,6 @@ import asyncio
 from datetime import timedelta
 import logging
 
-from config.custom_components.jotul import JotulApi
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -160,7 +159,7 @@ class JotulSensor(CoordinatorEntity, SensorEntity):
     _attr_has_entity_name = True
     entity_description: SensorEntityDescription
 
-    def __init__(self, coordinator: JotulCoordinator, api: JotulApi, description: SensorEntityDescription) -> None:
+    def __init__(self, coordinator: JotulCoordinator, api, description: SensorEntityDescription) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
         self.entity_description = description
