@@ -1,7 +1,5 @@
 """Sensors for Jotul pellet control."""
 
-import asyncio
-from datetime import timedelta
 import logging
 
 from homeassistant.components.sensor import (
@@ -15,11 +13,7 @@ from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
-from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
-    DataUpdateCoordinator,
-    UpdateFailed,
-)
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     ATTR_AMBIENT_TEMPERATURE,
@@ -105,8 +99,9 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     """Set up Jotul based on config_entry."""
-    jotul_api = hass.data[DOMAIN].get(entry.entry_id)
-    coordinator = JotulCoordinator(hass, jotul_api)
+    data = hass.data[DOMAIN].get(entry.entry_id)
+    jotul_api = data.get("api")
+    coordinator = data.get("coordinator")
     sensors = [ATTR_MEASURED_PRESSURE]
     sensors.append(ATTR_AMBIENT_TEMPERATURE)
     sensors.append(ATTR_PELLET_TEMPERATURE)
@@ -115,8 +110,6 @@ async def async_setup_entry(
     sensors.append(ATTR_DETAILED_STATUS)
     sensors.append(ATTR_SMOKE_TEMPERATURE)
 
-    await coordinator.async_config_entry_first_refresh()
-
     entities = [
         JotulSensor(coordinator, jotul_api, description)
         for description in SENSOR_TYPES
@@ -124,42 +117,13 @@ async def async_setup_entry(
     ]
     async_add_entities(entities)
 
-class JotulCoordinator(DataUpdateCoordinator):
-    """My custom coordinator."""
-
-    def __init__(self, hass: HomeAssistant | None, my_api) -> None :
-        """Initialize Jotul sensors coordinator."""
-        super().__init__(
-            hass,
-            _LOGGER,
-            # Name of the data. For logging purposes.
-            name="Jotul sensors",
-            # Polling interval. Will only be polled if there are subscribers.
-            update_interval=timedelta(seconds=30),
-        )
-        self.my_api = my_api
-
-    async def _async_update_data(self):
-        """Fetch data from API endpoint.
-
-        This is the place to pre-process the data to lookup tables
-        so entities can quickly look up their data.
-        """
-        try:
-            # Note: asyncio.TimeoutError and aiohttp.ClientError are already
-            # handled by the data update coordinator.
-            async with asyncio.timeout(10):
-                return await self.my_api.async_get_alls()
-        except BaseException as err:
-            raise UpdateFailed(f"Error communicating with API: {err}") from err
-
 class JotulSensor(CoordinatorEntity, SensorEntity):
     """Representation of a Sensor."""
 
     _attr_has_entity_name = True
     entity_description: SensorEntityDescription
 
-    def __init__(self, coordinator: JotulCoordinator, api, description: SensorEntityDescription) -> None:
+    def __init__(self, coordinator, api, description: SensorEntityDescription) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
         self.entity_description = description

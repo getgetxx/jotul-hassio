@@ -15,11 +15,11 @@ class JotulEntitySensorExtension:
         self.result_key_name = result_key_name
 
 DOMAIN = "jotul"
-INTERVAL = timedelta(seconds=30)
+POLLING_INTERVAL = timedelta(seconds=30)
 INTERVAL_CNTR = timedelta(seconds=300)  # Interval for check counters
 TIMEOUT = 10
 QUERY_STRING_BASE = "http://(HOST)/cgi-bin/sendmsg.lua"
-PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.SWITCH, Platform.NUMBER, Platform.SELECT]
+PLATFORMS: list[Platform] = [Platform.NUMBER, Platform.SELECT, Platform.SENSOR, Platform.SWITCH]
 
 ATTR_AMBIENT_TEMPERATURE = "ambient_temperature"
 ATTR_PELLET_TEMPERATURE = "pellet_temperature"
