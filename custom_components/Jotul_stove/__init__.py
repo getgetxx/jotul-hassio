@@ -47,7 +47,7 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry) -> bool:  
 
     def set_targettemp(call):
         """Handle the service call 'Set target temperature'."""
-        api.async_set_sept(call.data.get("value", None))
+        api.async_set_setp(call.data.get("value", None))
 
     def set_maxfan(call):
         """Handle the service call 'Set the max fan pwr'."""
@@ -168,15 +168,18 @@ class JotulApi:
         # let's go baby
         session = async_get_clientsession(self.hass)
         try:
+            _LOGGER.debug("Start GetRequest : " + str.replace(QUERY_STRING_BASE, "(HOST)", self.host)+f"?cmd={self.op}")
             async with asyncio.timeout(TIMEOUT):
                 # params = (("cmd", "GET ALLS"),)
-                response = await session.get(str.replace(QUERY_STRING_BASE, "(HOST)", self.host)+"?cmd=GET+ALLS")
+                response = await session.get(str.replace(QUERY_STRING_BASE, "(HOST)", self.host)+f"?cmd={self.op}") 
                 if(response.status != 200):
                     _LOGGER.error("Error during api request : http status returned is %s", response.status)
                     self.hass.states.async_set("jotulpelletcontrol.stove", "offline")
                     raise aiohttp.ClientError(f"Error during api request : http status returned is {response.status}")
                 else :
-                    response_json = json.loads(await response.text())
+                    resp_text = await response.text()
+                    _LOGGER.debug(f"GetRequest response : {resp_text}")
+                    response_json = json.loads(resp_text)
         except aiohttp.ClientError as client_error:
             _LOGGER.error("Error during api request: {emsg}".format(emsg=client_error))  # noqa: UP032, G001
             self.hass.states.async_set("jotulpelletcontrol.stove", "offline")
@@ -195,7 +198,7 @@ class JotulApi:
             raise aiohttp.ClientResponseError(response)
 
         # mapping du status int to text
-        status = response_json["DATA"]["STATUS"]
+        status = response_json["DATA"].get("STATUS")
         if status is not None :
             response_json["DATA"]["STATUS_TXT"] = ATTR_DETAILED_STATUS_OPTIONS_MAPPING[status]
             response_json["DATA"]["Etat"] = 1 if (status > 1 and status < 10) or status == 11 else 0
@@ -217,31 +220,45 @@ class JotulApi:
     async def change_states(self):
         """Change states following result of request."""
         # if self.op == "GET ALLS":
-        self.hass.states.async_set("jotulpelletcontrol.STATUS", ATTR_DETAILED_STATUS_OPTIONS_MAPPING.get(
-            self.response_json["STATUS"], self.response_json["STATUS"])) # Statut détaillé
-        self.hass.states.async_set("jotulpelletcontrol.F2L", int(self.response_json["F2L"])) # Puissance ventilation max
-        self.hass.states.async_set("jotulpelletcontrol.PWR", self.response_json["PWR"]) # Puissance
-        self.hass.states.async_set("jotulpelletcontrol.SETP", self.response_json["SETP"]) # Température demandé
-        self.hass.states.async_set("jotulpelletcontrol.APLWDAY", self.response_json["APLWDAY"]) # ????
-        self.hass.states.async_set("jotulpelletcontrol.F1RPM", self.response_json["F1RPM"]) # RPM extracteur de fumée
-        self.hass.states.async_set("jotulpelletcontrol.FDR", self.response_json["FDR"]) # ????
-        self.hass.states.async_set("jotulpelletcontrol.DPT", self.response_json["DPT"]) # Deltra pressure target
-        self.hass.states.async_set("jotulpelletcontrol.DP", self.response_json["DP"]) # Delta pressure
-        self.hass.states.async_set("jotulpelletcontrol.T1", self.response_json["T1"]) # Température ambiante
-        self.hass.states.async_set("jotulpelletcontrol.T2", self.response_json["T2"]) # Température pellet
-        self.hass.states.async_set("jotulpelletcontrol.T3", self.response_json["T3"]) # Température des fumées
-        self.hass.states.async_set("jotulpelletcontrol.CHRSTATUS", self.response_json["CHRSTATUS"]) # Satus d'activation de la programmation horaire
-        self.hass.states.async_set("jotulpelletcontrol.PQT", self.response_json["PQT"]) # ????
-
+        for key, value in self.response_json.items():
+            if key == "STATUS":
+                status = value  # Statut détaillé
+                self.hass.states.async_set("jotulpelletcontrol.STATUS", ATTR_DETAILED_STATUS_OPTIONS_MAPPING.get(status, status))
+            elif key == "F2L":
+                self.hass.states.async_set("jotulpelletcontrol.F2L", int(value))  # Puissance ventilation max
+            elif key == "PWR":
+                self.hass.states.async_set("jotulpelletcontrol.PWR", value)  # Puissance
+            elif key == "SETP":
+                self.hass.states.async_set("jotulpelletcontrol.SETP", value)  # Température demandée
+            elif key == "APLWDAY":
+                self.hass.states.async_set("jotulpelletcontrol.APLWDAY", value)  # ????
+            elif key == "F1RPM":
+                self.hass.states.async_set("jotulpelletcontrol.F1RPM", value)  # RPM extracteur de fumée
+            elif key == "FDR":
+                self.hass.states.async_set("jotulpelletcontrol.FDR", value)  # ????
+            elif key == "DPT":
+                self.hass.states.async_set("jotulpelletcontrol.DPT", value)  # Deltra pressure target
+            elif key == "DP":
+                self.hass.states.async_set("jotulpelletcontrol.DP", value)  # Delta pressure
+            elif key == "T1":
+                self.hass.states.async_set("jotulpelletcontrol.T1", value)  # Température ambiante
+            elif key == "T2":
+                self.hass.states.async_set("jotulpelletcontrol.T2", value)  # Température pellet
+            elif key == "T3":
+                self.hass.states.async_set("jotulpelletcontrol.T3", value)  # Température des fumées
+            elif key == "CHRSTATUS":
+                self.hass.states.async_set("jotulpelletcontrol.CHRSTATUS", value)  # Statut d'activation de la programmation horaire
+            elif key == "PQT":
+                self.hass.states.async_set("jotulpelletcontrol.PQT", value)  # ????
 
     async def async_set_parameters(self, datas):
         """Set parameters following service call."""
-        await self.async_set_sept(datas.get("SETP", None))  # temperature
+        await self.async_set_setp(datas.get("SETP", None))  # temperature
         await self.async_set_powr(datas.get("PWR", None))  # fire power
         await self.async_set_rfan(datas.get("RFAN", None))  # Fan
         await self.async_set_status(datas.get("STATUS", None))  # status
 
-    async def async_set_sept(self, value):
+    async def async_set_setp(self, value):
         """Set target temperature."""
 
         if value is None or not isinstance(value, int):
@@ -289,6 +306,7 @@ class JotulApi:
             return
 
         self.op = f"SET CSST {str(value)}"
+        _LOGGER.debug(f"Call GetRequest : {self.op}")
         await self.async_get_request()
 
         # change state
@@ -315,7 +333,7 @@ class JotulApi:
             else:
                 value = "OFF"
 
-        self.op = f"CMD {str(value).upper()}"
+        self.op = f"CMD {str(value).upper()}"        
         await self.async_get_request()
 
         # change state

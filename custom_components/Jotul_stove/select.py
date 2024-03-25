@@ -80,9 +80,13 @@ class VentilationModeSelect(SelectEntity):
         """Return the state of the sensor."""
         return ATTR_FAN_LEVEL_MAPPING[self._api.response_json["F2L"]]
 
-    async def async_set_current_option(self, value:float) -> None:
-        """Set target temperature value."""
-        await self._api.async_set_rfan(ATTR_FAN_LEVEL_MAPING_REVERSE[value])
+    async def async_select_option(self, option:str) -> None:
+        """Set target Ventilation mode."""
+        await self._api.async_set_rfan(ATTR_FAN_LEVEL_MAPING_REVERSE[option])
+
+    # async def async_set_current_option(self, value:float) -> None:
+    #     """Set target temperature value."""
+    #     await self._api.async_set_rfan(ATTR_FAN_LEVEL_MAPING_REVERSE[value])
 
     # async def async_get_native_value(self) -> float:
     #     """Turn the stove off."""

@@ -6,6 +6,7 @@ import logging
 from homeassistant.components.number import NumberDeviceClass, NumberEntity, NumberMode
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.const import UnitOfTemperature
 
 from .const import DOMAIN, INTERVAL, TIMEOUT
 
@@ -55,16 +56,17 @@ class TargetTemperatureNumber(NumberEntity):
         self._attr_unique_id = f"{api.mac}-target_temperature"
         self._attr_has_entity_name = True
         self._attr_icon= "mdi:thermometer"
-        # self._attr_should_poll= True
+        self._attr_should_poll= True
         self._api = api
-        self._attr_max_value = 25
-        self._attr_min_value= 15
+        # self._attr_max_value = 25.0
+        # self._attr_min_value= 15.0
         self._attr_mode = NumberMode.SLIDER
-        self._attr_native_max_value: 25
-        self._attr_native_min_value: 15
-        self._attr_native_step: 1
-        self._attr_step = 1
+        self._attr_native_max_value: 25.0
+        self._attr_native_min_value: 15.0
+        self._attr_native_step: 1.0
+        # self._attr_step = 1.0
         self._attr_device_class = NumberDeviceClass.TEMPERATURE
+        self._attr_native_value_of_measurement = UnitOfTemperature.CELSIUS
         # self._api.async_get_alls()
 
 
@@ -78,11 +80,17 @@ class TargetTemperatureNumber(NumberEntity):
         """Return the name of the switch."""
         return self._name
 
-    @property
-    def native_value(self) -> float | None:
-        """Return the state of the sensor."""
-        return self._api.response_json["SETP"]
+    # @property
+    # def native_value(self) -> float | None:
+    #     """Return the state of the sensor."""
+    #     return self._api.response_json["SETP"]
 
+    async def async_update(self) -> None:
+        """Get the latest state from the stove."""
+        self._attr_native_value = self._api.response_json.get("SETP")
+        
     async def async_set_native_value(self, value:float) -> None:
         """Set target temperature value."""
-        await self._api.async_set_sept(value)
+        await self._api.async_set_setp(value)
+        self._attr_native_value = self._api.response_json.get("SETP")
+        self.async_write_ha_state()
