@@ -7,7 +7,7 @@
   "codeowners": [
     "@Getget"
   ],
-  "version": "1.0.0",
+  "version": "1.1.0",
   "integration_type": "hub",
   "iot_class": "local_polling",
   "requirements": []
