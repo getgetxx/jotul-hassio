@@ -53,7 +53,7 @@ class StatusSwitch(ToggleEntity):
 
     async def async_turn_off(self, **kwargs):
         """Turn the stove off."""
-        await self.api.async_set_status(False)
+        await self._api.async_set_status(False)
 
     async def async_toggle(self, **kwargs) -> None:
         """Toogle the switch."""

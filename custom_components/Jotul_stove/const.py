@@ -100,6 +100,23 @@ ATTR_FAN_LEVEL_MAPING_REVERSE : dict[str, int] = {
     "Auto": 7
 }
 
+
+ATTR_MAX_POWER_MAPPING : dict[int, str] = {
+    1: "1",
+    2: "2",
+    3: "3",
+    4: "4",
+    5: "5"
+}
+ATTR_MAX_POWER_MAPING_REVERSE : dict[str, int] = {
+    "1": 1,
+    "2": 2,
+    "3": 3,
+    "4": 4,
+    "5": 5
+}
+
+
 # ATTR_STATE_ON = "on"
 # ATTR_STATE_OFF = "off"
 
